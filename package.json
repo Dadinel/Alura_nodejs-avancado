@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/Dadinel/Alura_nodejs-avancado#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "consign": "^0.1.6",
     "express": "^4.16.2"
   }
