@@ -22,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/Dadinel/Alura_nodejs-avancado/issues"
   },
-  "homepage": "https://github.com/Dadinel/Alura_nodejs-avancado#readme"
+  "homepage": "https://github.com/Dadinel/Alura_nodejs-avancado#readme",
+  "dependencies": {
+    "consign": "^0.1.6",
+    "express": "^4.16.2"
+  }
 }
