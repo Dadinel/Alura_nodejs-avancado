@@ -1,0 +1,26 @@
+{
+  "name": "payfast",
+  "version": "1.0.0",
+  "description": "Gateway para pagamentos atraves de recursos http",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dadinel/Alura_nodejs-avancado.git"
+  },
+  "keywords": [
+    "gateway",
+    "pagamentos",
+    "api",
+    "http",
+    "rest"
+  ],
+  "author": "Daniel Mendes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dadinel/Alura_nodejs-avancado/issues"
+  },
+  "homepage": "https://github.com/Dadinel/Alura_nodejs-avancado#readme"
+}
