@@ -1,23 +1,23 @@
-function PagamentosDao(connection) {
+function PagamentoDao(connection) {
     this._connection = connection;
 }
 
-PagamentosDao.prototype.lista = function(callback) {
-    this._connection.query('select * from pagamentos', callback);
+PagamentoDao.prototype.salva = function(pagamento,callback) {
+    this._connection.query('insert into pagamentos SET ?', pagamento, callback);
 }
 
-PagamentosDao.prototype.salva = function(produto, callback) {
-    this._connection.query('insert into pagamentos set ?', produto, callback);
+PagamentoDao.prototype.lista = function(callback) {
+    this._connection.query('select * from pagamentos',callback);
 }
 
-PagamentosDao.prototype.buscaPorId = function(id, callback) {
-    this._connection.query('delete from pagamentos where id = ?', id, callback);
+PagamentoDao.prototype.buscaPorId = function (id,callback) {
+    this._connection.query("select * from pagamentos where id = ?",[id],callback);
 }
 
-PagamentosDao.prototype.deleta = function(id, callback) {
-    this._connection.query('delete from pagamentos where ?', id, callback);
+PagamentoDao.prototype.deleta = function (id,callback) {
+    this._connection.query("delete from pagamentos where id = ?",[id],callback);
 }
 
-module.exports = function() {
-    return PagamentosDao;
-}
+module.exports = function(){
+    return PagamentoDao;
+};
