@@ -16,6 +16,26 @@ module.exports = function(app) {
         });
     });
 
+    app.put('/pagamentos/pagamento/:id', function(req, res) {
+        let id = req.params.id;
+        let pagamento = {};
+
+        pagamento.id = id;
+        pagamento.status = 'CONFIRMADO';
+
+        let connection = app.persistencia.connectionFactory();
+        let pagamentoDao = new app.persistencia.PagamentoDao(connection);
+
+        pagamentoDao.atualiza(pagamento, function(error, result) {
+            if(error) {
+                res.status(500).send(error);
+            }
+            else {
+                res.send(pagamento);
+            }
+        });
+    });
+
     app.post('/pagamentos/pagamento', function(req, res) {
         req.assert('forma_de_pagamento', 'Forma de pagamento é obrigatória').notEmpty();
         req.assert('valor', 'Valor é obrigatório e deve ser decimal').notEmpty().isFloat();
