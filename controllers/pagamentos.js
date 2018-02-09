@@ -16,6 +16,26 @@ module.exports = function(app) {
         });
     });
 
+    app.delete('/pagamentos/pagamento/:id', function(req, res) {
+        let id = req.params.id;
+        let pagamento = {};
+
+        pagamento.id = id;
+        pagamento.status = 'CANCELADO';
+
+        let connection = app.persistencia.connectionFactory();
+        let pagamentoDao = new app.persistencia.PagamentoDao(connection);
+
+        pagamentoDao.atualiza(pagamento, function(error, result) {
+            if(error) {
+                res.status(500).send(error);
+            }
+            else {
+                res.status(204).send(pagamento);
+            }
+        });
+    });
+
     app.put('/pagamentos/pagamento/:id', function(req, res) {
         let id = req.params.id;
         let pagamento = {};
@@ -63,10 +83,28 @@ module.exports = function(app) {
                     res.status(500).send(exception);
                 }
                 else {
-                    console.log('Pagamento criado:' + pagamento);
-                    res.location('/pagamentos/pagamento/' + result.insertId);
                     pagamento.id = result.insertId;
-                    res.status(201).json(pagamento);
+                    console.log('Pagamento criado:' + pagamento);
+                    res.location('/pagamentos/pagamento/' + pagamento.id);
+
+                    let response = {
+                        dados_do_pagamento: pagamento,
+                        links: [
+                            {
+                                href: "http://localhost:3001/pagamentos/pagamento/" + pagamento.id,
+                                rel: "confirmar",
+                                method: "PUT"
+                            },
+                            {
+                                href: "http://localhost:3001/pagamentos/pagamento/" + pagamento.id,
+                                rel: "cancelar",
+                                method: "DELETE"
+                            }
+                        ]
+                    };
+
+                    res.status(201).json(response);
+                    //res.status(201).json(pagamento);
                 }
             })
         }
