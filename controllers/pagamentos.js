@@ -57,9 +57,9 @@ module.exports = function(app) {
     });
 
     app.post('/pagamentos/pagamento', function(req, res) {
-        req.assert('forma_de_pagamento', 'Forma de pagamento é obrigatória').notEmpty();
-        req.assert('valor', 'Valor é obrigatório e deve ser decimal').notEmpty().isFloat();
-        req.assert('moeda', 'Moeda é obrigatória e deve ter 3 caracteres').notEmpty().len(3,3);
+        req.assert('pagamento.forma_de_pagamento', 'Forma de pagamento é obrigatória').notEmpty();
+        req.assert('pagamento.valor', 'Valor é obrigatório e deve ser decimal').notEmpty().isFloat();
+        req.assert('pagamento.moeda', 'Moeda é obrigatória e deve ter 3 caracteres').notEmpty().len(3,3);
 
         let erros = req.validationErrors();
 
@@ -68,7 +68,7 @@ module.exports = function(app) {
             res.status(400).send(erros);
         }
         else {
-            let pagamento = req.body;
+            let pagamento = req.body['pagamento'];
 
             console.log('Processando uma requisição de um novo pagamento');
             pagamento.status = 'CRIADO';
@@ -85,6 +85,17 @@ module.exports = function(app) {
                 else {
                     pagamento.id = result.insertId;
                     console.log('Pagamento criado:' + pagamento);
+
+                    if(pagamento.forma_de_pagamento == 'cartao') {
+                        let cartao = req.body['cartao'];
+                        console.log(cartao);
+
+                        clienteCartoes.autoriza(cartao);
+
+                        res.status(201).json(cartao);
+                        return;
+                    }
+
                     res.location('/pagamentos/pagamento/' + pagamento.id);
 
                     let response = {
