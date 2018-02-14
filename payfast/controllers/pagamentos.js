@@ -1,4 +1,9 @@
 module.exports = function(app) {
+
+    const PAGAMENTO_CRIADO = "CRIADO";
+    const PAGAMENTO_CONFIRMADO = "CONFIRMADO";
+    const PAGAMENTO_CANCELADO = "CANCELADO";
+
     app.get('/pagamentos', function(req, res) {
         /*console.log('Recebida requisição teste na porta 3001.');
         res.send('OK.');*/
@@ -21,7 +26,7 @@ module.exports = function(app) {
         let pagamento = {};
 
         pagamento.id = id;
-        pagamento.status = 'CANCELADO';
+        pagamento.status = PAGAMENTO_CANCELADO;
 
         let connection = app.persistencia.connectionFactory();
         let pagamentoDao = new app.persistencia.PagamentoDao(connection);
@@ -41,7 +46,7 @@ module.exports = function(app) {
         let pagamento = {};
 
         pagamento.id = id;
-        pagamento.status = 'CONFIRMADO';
+        pagamento.status = PAGAMENTO_CONFIRMADO;
 
         let connection = app.persistencia.connectionFactory();
         let pagamentoDao = new app.persistencia.PagamentoDao(connection);
@@ -71,7 +76,7 @@ module.exports = function(app) {
             let pagamento = req.body['pagamento'];
 
             console.log('Processando uma requisição de um novo pagamento');
-            pagamento.status = 'CRIADO';
+            pagamento.status = PAGAMENTO_CRIADO;
             pagamento.data = new Date();
 
             let connection = app.persistencia.connectionFactory();
@@ -90,32 +95,67 @@ module.exports = function(app) {
                         let cartao = req.body['cartao'];
                         console.log(cartao);
 
-                        clienteCartoes.autoriza(cartao);
+                        let clienteCartoes = new app.servicos.clienteCartoes();
 
-                        res.status(201).json(cartao);
-                        return;
-                    }
+                        clienteCartoes.autoriza(cartao, function(exceptionC, reqC, resC, retornoC) {
+                            if(exceptionC) {
+                                let returnStatus = 400;
 
-                    res.location('/pagamentos/pagamento/' + pagamento.id);
+                                if(exceptionC.statusCode) {
+                                    returnStatus = exceptionC.statusCode
+                                }
 
-                    let response = {
-                        dados_do_pagamento: pagamento,
-                        links: [
-                            {
-                                href: "http://localhost:3001/pagamentos/pagamento/" + pagamento.id,
-                                rel: "confirmar",
-                                method: "PUT"
-                            },
-                            {
-                                href: "http://localhost:3001/pagamentos/pagamento/" + pagamento.id,
-                                rel: "cancelar",
-                                method: "DELETE"
+                                console.log(exceptionC);
+                                res.status(returnStatus).send(exceptionC);
                             }
-                        ]
-                    };
+                            else {
+                                console.log(retornoC);
 
-                    res.status(201).json(response);
-                    //res.status(201).json(pagamento);
+                                res.location('/pagamentos/pagamento/' + pagamento.id);
+
+                                let response = {
+                                    dados_do_pagamento: pagamento,
+                                    cartao: retornoC,
+                                    links: [
+                                        {
+                                            href: "http://localhost:3001/pagamentos/pagamento/" + pagamento.id,
+                                            rel: "confirmar",
+                                            method: "PUT"
+                                        },
+                                        {
+                                            href: "http://localhost:3001/pagamentos/pagamento/" + pagamento.id,
+                                            rel: "cancelar",
+                                            method: "DELETE"
+                                        }
+                                    ]
+                                };
+
+                                res.status(201).json(response);
+                            }
+                        });
+                    }
+                    else {
+                        res.location('/pagamentos/pagamento/' + pagamento.id);
+
+                        let response = {
+                            dados_do_pagamento: pagamento,
+                            links: [
+                                {
+                                    href: "http://localhost:3001/pagamentos/pagamento/" + pagamento.id,
+                                    rel: "confirmar",
+                                    method: "PUT"
+                                },
+                                {
+                                    href: "http://localhost:3001/pagamentos/pagamento/" + pagamento.id,
+                                    rel: "cancelar",
+                                    method: "DELETE"
+                                }
+                            ]
+                        };
+
+                        res.status(201).json(response);
+                        //res.status(201).json(pagamento);
+                    }
                 }
             })
         }

@@ -7,7 +7,7 @@ PagamentoDao.prototype.salva = function(pagamento,callback) {
 }
 
 PagamentoDao.prototype.atualiza = function(pagamento,callback) {
-    this._connection.query('update pagamentos SET status = ? where id = ? and status = ?', [pagamento.status, pagamento.id, 'CANCELADO'] , callback);
+    this._connection.query('update pagamentos SET status = ? where id = ? and status <> ?', [pagamento.status, pagamento.id, 'CANCELADO'] , callback);
 }
 
 PagamentoDao.prototype.lista = function(callback) {
