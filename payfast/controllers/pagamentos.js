@@ -21,6 +21,25 @@ module.exports = function(app) {
         });
     });
 
+    app.get('/pagamentos/pagamento/:id', function(req, res) {
+        let id = req.params.id;
+
+        console.log('Consultando o pagamento:' + id);
+
+        let connection = app.persistencia.connectionFactory();
+        let pagamentoDao = new app.persistencia.PagamentoDao(connection);
+
+        pagamentoDao.buscaPorId(id, function(exception, result) {
+            if(exception) {
+                console.log(exception);
+                res.status(500).send(exception);
+            }
+            else {
+                res.json(result);
+            }
+        });
+    });
+
     app.delete('/pagamentos/pagamento/:id', function(req, res) {
         let id = req.params.id;
         let pagamento = {};
@@ -33,6 +52,7 @@ module.exports = function(app) {
 
         pagamentoDao.atualiza(pagamento, function(error, result) {
             if(error) {
+                console.log(error);
                 res.status(500).send(error);
             }
             else {
@@ -53,6 +73,7 @@ module.exports = function(app) {
 
         pagamentoDao.atualiza(pagamento, function(error, result) {
             if(error) {
+                console.log(error);
                 res.status(500).send(error);
             }
             else {
