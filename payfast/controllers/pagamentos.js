@@ -24,7 +24,7 @@ module.exports = function(app) {
     app.get('/pagamentos/pagamento/:id', function(req, res) {
         let id = req.params.id;
 
-        console.log('Consultando o pagamento:' + id);
+        console.log('Consultando o pagamento: ' + id);
 
         let connection = app.persistencia.connectionFactory();
         let pagamentoDao = new app.persistencia.PagamentoDao(connection);
