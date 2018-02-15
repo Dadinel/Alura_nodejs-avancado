@@ -26,16 +26,28 @@ module.exports = function(app) {
 
         console.log('Consultando o pagamento: ' + id);
 
-        let connection = app.persistencia.connectionFactory();
-        let pagamentoDao = new app.persistencia.PagamentoDao(connection);
+        let memcachedClient = app.servicos.memcachedClient();
 
-        pagamentoDao.buscaPorId(id, function(exception, result) {
-            if(exception) {
-                console.log(exception);
-                res.status(500).send(exception);
+        memcachedClient.get('pagamento-' + id, function(error, retorno) {
+            if(error || !retorno) {
+                console.log('MISS - chave nao encontrada.');
+
+                let connection = app.persistencia.connectionFactory();
+                let pagamentoDao = new app.persistencia.PagamentoDao(connection);
+        
+                pagamentoDao.buscaPorId(id, function(exception, result) {
+                    if(exception) {
+                        console.log(exception);
+                        res.status(500).send(exception);
+                    }
+                    else {
+                        res.json(result);
+                    }
+                });
             }
             else {
-                res.json(result);
+                console.log('HIT - valor: ' + JSON.stringify(retorno));
+                res.json(retorno);
             }
         });
     });
@@ -111,6 +123,17 @@ module.exports = function(app) {
                 else {
                     pagamento.id = result.insertId;
                     console.log('Pagamento criado:' + pagamento);
+
+                    let memcachedClient = app.servicos.memcachedClient();
+
+                    memcachedClient.set('pagamento-' + pagamento.id, pagamento, 60000, function(error) {
+                        if(error) {
+                            console.log(error);
+                        }
+                        else {
+                            console.log('Nova chave adicionada ao cache: pagamento-' + pagamento.id );
+                        }
+                    });
 
                     if(pagamento.forma_de_pagamento == 'cartao') {
                         let cartao = req.body['cartao'];
