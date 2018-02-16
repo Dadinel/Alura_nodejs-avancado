@@ -2,8 +2,8 @@ let memcahed = require('memcached');
 
 function createMemcachedClient() {
     let client = new memcahed('localhost:11211', {
-        retries: 3,
-        retry: 3000,
+        retries: 2,
+        retry: 1500,
         remove: true
     });
 
